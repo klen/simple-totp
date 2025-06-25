@@ -20,6 +20,13 @@ local passfile="$PREFIX/$path.gpg"
 local count="$(printf '%.16x' $(($(date +%s)/30)))"
 check_sneaky_paths "$path"
 
+if [[ -z "$path" ]]; then
+  echo "Usage: pass otp <path> [-c | --clip] [-qr | --qrcode]"
+  echo "Generate a TOTP code from a pass entry."
+  echo "Example: pass otp mytotp"
+  exit 1
+fi
+
 local hexkey=$(gpg -d "${GPG_OPTS[@]}" "$passfile" | grep -E 'otp|secret' | tr -d ' ' | cut -d':' -f2 | base32 -d | xxd -ps -c 128)
 
 [[ -z "$hexkey" ]] && die "Failed to generate TOTP code: otp or secret not found. Example in pass file secret: YourTotpBase32SecretNoSpacesBetweenChars"
